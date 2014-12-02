@@ -1,5 +1,5 @@
 require 'sinatra'
-require 'EasyPost'
+require 'easypost'
 require 'dotenv'
 Dotenv.load
 

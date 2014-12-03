@@ -39,11 +39,13 @@ get '/rates' do
     :parcel => parcel
   )
 
-  shipment.rates.map do |rate|
+
+  shipment.rates.sort_by do |rate|
+    rate.rate.to_i
+  end.each_with_index.map do |rate, i|
 
     # Annoyingly, we don't have very good information here in testmode, so we'll just make up a value. cc @easypost :)
-    arrival_days_from_now = (((rate.carrier + rate.service).hash) % shipment.rates.count) + 1
-    arrival_date = Time.now + arrival_days_from_now * (60*60*24)
+    arrival_date = Time.now + (shipment.rates.count - i + 1) * (60*60*24)
     formatted_arrival_date = arrival_date.strftime("Will arrive by %A, %b %-e")
 
     {

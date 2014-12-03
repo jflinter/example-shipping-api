@@ -9,12 +9,11 @@ get '/rates' do
   content_type :json
 
   toAddress = {
-    :street1 => params[:address_line1],
-    :street2 => params[:address_line2],
+    :street1 => params[:address],
     :city =>    params[:city],
     :state =>   params[:state],
     :zip =>     params[:zip],
-    :country => params[:country],
+    :country => params[:country]
   }
 
   fromAddress = {
@@ -41,11 +40,19 @@ get '/rates' do
   )
 
   shipment.rates.map do |rate|
+
+    # Annoyingly, we don't have very good information here in testmode, so we'll just make up a value. cc @easypost :)
+    arrival_days_from_now = (((rate.carrier + rate.service).hash) % shipment.rates.count) + 1
+    arrival_date = Time.now + arrival_days_from_now * (60*60*24)
+    formatted_arrival_date = arrival_date.strftime("Will arrive by %A, %b %-e")
+
     {
+      :id => rate.id,
       :carrier => rate.carrier,
       :service => rate.service,
       :amount => rate.rate,
       :currency => rate.currency,
+      :formatted_arrival_date => formatted_arrival_date
     }
   end.to_json
 
